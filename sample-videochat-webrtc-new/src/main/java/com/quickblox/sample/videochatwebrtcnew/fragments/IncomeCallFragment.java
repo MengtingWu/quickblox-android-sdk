@@ -106,8 +106,10 @@ public class IncomeCallFragment extends Fragment implements Serializable {
 
                 stopCallNotification();
 
-                ((CallActivity) getActivity()).getSession(sessionDescription.getSessionId())
-                        .rejectCall(sessionDescription.getUserInfo());
+                QBRTCSession session = ((CallActivity) getActivity()).getCurrentSession();
+                if (session != null) {
+                    session.rejectCall(sessionDescription.getUserInfo());
+                }
                 ((CallActivity) getActivity()).removeIncomeCallFragment();
                 ((CallActivity) getActivity()).addOpponentsFragment();
 
@@ -135,9 +137,12 @@ public class IncomeCallFragment extends Fragment implements Serializable {
         incVideoCall = (TextView) view.findViewById(R.id.incVideoCall);
 
         callerName = (TextView) view.findViewById(R.id.callerName);
-        callerName.setText(getCallerName(((CallActivity) getActivity()).getSession(sessionDescription.getSessionId())));
-        callerName.setBackgroundResource(ListUsersActivity.selectBackgrounForOpponent((DataHolder.getUserIndexByID((
-                ((CallActivity) getActivity()).getSession(sessionDescription.getSessionId()).getCallerID()))) + 1));
+        QBRTCSession session = ((CallActivity) getActivity()).getCurrentSession();
+        if (session != null) {
+            callerName.setText(getCallerName(session));
+            callerName.setBackgroundResource(ListUsersActivity.selectBackgrounForOpponent((DataHolder.getUserIndexByID((
+                    session.getCallerID()))) + 1));
+        }
 
         otherIncUsers = (TextView) view.findViewById(R.id.otherIncUsers);
         otherIncUsers.setText(getOtherIncUsersNames(opponents));

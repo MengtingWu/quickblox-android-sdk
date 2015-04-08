@@ -27,6 +27,9 @@ import com.quickblox.videochat.webrtc.QBRTCClient;
 import com.quickblox.videochat.webrtc.QBRTCConfig;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
+//import com.quickblox.videochat.webrtc.callbacks.QBRTCClientConnectionCallbacks;
+//import com.quickblox.videochat.webrtc.callbacks.QBRTCClientSessionCallbacks;
+//import com.quickblox.videochat.webrtc.callbacks.QBRTCClientVideoTracksCallbacks;
 import com.quickblox.videochat.webrtc.callbacks.QBRTCClientCallback;
 import com.quickblox.videochat.webrtc.view.QBGLVideoView;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
@@ -46,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by tereha on 16.02.15.
  */
-public class CallActivity extends BaseLogginedUserActivity implements QBRTCClientCallback {
+public class CallActivity extends BaseLogginedUserActivity implements QBRTCClientCallback/*QBRTCClientConnectionCallbacks,QBRTCClientVideoTracksCallbacks,QBRTCClientSessionCallbacks */{
 
 
     private static final String TAG = "CallActivity";
@@ -80,6 +83,7 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
     private HandlerThread showIncomingCallWindowTaskThread;
     private Runnable showIncomingCallWindowTask;
     private Handler showIncomingCallWindowTaskHandler;
+    private QBRTCSession session;
 
 
     @Override
@@ -122,31 +126,24 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
         // Add activity as callback to RTCClient
         if (QBRTCClient.isInitiated()) {
             QBRTCClient.getInstance().addCallback(this);
+//            QBRTCClient.getInstance().addConnectionCallbacksListener(this);
+//            QBRTCClient.getInstance().addSessionCallbacksListener(this);
+//            QBRTCClient.getInstance().addVideoTrackCallbacksListener(this);
         }
     }
 
     public QBRTCSession getCurrentSession() {
-        return QBRTCClient.getInstance().getSessions().get(currentSession);
+        return session;
     }
 
     public void setCurrentSession(QBRTCSession session) {
-        if (!QBRTCClient.getInstance().getSessions().containsKey(session.getSessionID())) {
-            addSession(session);
-        }
+        this.session = session;
         currentSession = session.getSessionID();
-    }
-
-    public QBRTCSession getSession(String sessionID) {
-        return QBRTCClient.getInstance().getSessions().get(sessionID);
     }
 
 //    public void setVideoViewVisibility(int visibility){
 //        videoView.setVisibility(visibility);
 //    }
-
-    public void addSession(QBRTCSession session) {
-        QBRTCClient.getInstance().getSessions().put(session.getSessionID(), session);
-    }
 
     public void setCurrentSessionId(String sesionId) {
         this.currentSession = sesionId;
@@ -177,7 +174,7 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
         if (currentSession == null) {
             Log.d(TAG, "Start new session");
             Log.d(TAG, "Income call");
-            QBRTCClient.getInstance().getSessions().put(session.getSessionID(), session);
+//            QBRTCClient.getInstance().getSessions().put(session.getSessionID(), session);
             setCurrentSession(session);
             addIncomeCallFragment(session);
         } else {
@@ -302,11 +299,6 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
         // TODO update view of this user
 
         setStateTitle(userID, R.string.hungUp, View.INVISIBLE);
-
-        Log.d(TAG, "CHECK SESSION STATE");
-        for (String key : QBRTCClient.getInstance().getSessions().keySet()) {
-            Log.d(TAG, QBRTCClient.getInstance().getSessions().get(key).toString());
-        }
 
 ////        Toast.makeText(this, "User with ID:" + userID + "disconnected", Toast.LENGTH_SHORT).show();
 //        if (session.getState().ordinal() < QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_REJECTED.ordinal()){
