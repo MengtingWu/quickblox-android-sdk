@@ -27,10 +27,9 @@ import com.quickblox.videochat.webrtc.QBRTCClient;
 import com.quickblox.videochat.webrtc.QBRTCConfig;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
-//import com.quickblox.videochat.webrtc.callbacks.QBRTCClientConnectionCallbacks;
-//import com.quickblox.videochat.webrtc.callbacks.QBRTCClientSessionCallbacks;
-//import com.quickblox.videochat.webrtc.callbacks.QBRTCClientVideoTracksCallbacks;
-import com.quickblox.videochat.webrtc.callbacks.QBRTCClientCallback;
+import com.quickblox.videochat.webrtc.callbacks.QBRTCClientConnectionCallbacks;
+import com.quickblox.videochat.webrtc.callbacks.QBRTCClientSessionCallbacks;
+import com.quickblox.videochat.webrtc.callbacks.QBRTCClientVideoTracksCallbacks;
 import com.quickblox.videochat.webrtc.view.QBGLVideoView;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
 
@@ -49,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by tereha on 16.02.15.
  */
-public class CallActivity extends BaseLogginedUserActivity implements QBRTCClientCallback/*QBRTCClientConnectionCallbacks,QBRTCClientVideoTracksCallbacks,QBRTCClientSessionCallbacks */{
+public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCClientCallback*/QBRTCClientConnectionCallbacks,QBRTCClientVideoTracksCallbacks,QBRTCClientSessionCallbacks {
 
 
     private static final String TAG = "CallActivity";
@@ -63,19 +62,12 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
     private static VideoRenderer.Callbacks REMOTE_RENDERER;
     private static VideoRenderer.Callbacks LOCAL_RENDERER;
 
-    private int selectedOpponentId;
-
-//    private OpponentsFragment opponentsFragment = null;
-//    private IncomeCallFragment incomeCallFragment = null;
-//    private ConversationFragment conversationFragment = null;
 
     public static final String START_CONVERSATION_REASON = "start_conversation_reason";
     public static final String SESSION_ID = "sessionID";
     private QBRTCVideoTrack localVideoTrack;
     private String currentSession;
-    //    private CallManger callManger;
-//    private VideoRenderer.Callbacks localRenderer;
-//    private List<VideoRenderer.Callbacks> opponentRenderers = new LinkedList<>();
+
     private QBGLVideoView videoView;
     public static String login;
     public static Map<Integer, QBRTCVideoTrack> videoTrackList = new HashMap<>();
@@ -102,8 +94,6 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
         }
 
         Log.d("Track", "onCreate() from NewDialogActivity Level 1");
-
-
     }
 
 
@@ -125,10 +115,9 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
 
         // Add activity as callback to RTCClient
         if (QBRTCClient.isInitiated()) {
-            QBRTCClient.getInstance().addCallback(this);
-//            QBRTCClient.getInstance().addConnectionCallbacksListener(this);
-//            QBRTCClient.getInstance().addSessionCallbacksListener(this);
-//            QBRTCClient.getInstance().addVideoTrackCallbacksListener(this);
+            QBRTCClient.getInstance().addConnectionCallbacksListener(this);
+            QBRTCClient.getInstance().addSessionCallbacksListener(this);
+            QBRTCClient.getInstance().addVideoTrackCallbacksListener(this);
         }
     }
 
@@ -141,17 +130,10 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
         currentSession = session.getSessionID();
     }
 
-//    public void setVideoViewVisibility(int visibility){
-//        videoView.setVisibility(visibility);
-//    }
-
     public void setCurrentSessionId(String sesionId) {
         this.currentSession = sesionId;
     }
 
-    /*public void setCallManager(CallManger callManger){
-        this.callManger = callManger;
-    }*/
 
 //    public void setLocalRenderer(VideoRenderer.Callbacks localRenderer){
 //        this.localRenderer = localRenderer;
@@ -252,12 +234,8 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
     public void onSessionClosed(QBRTCSession session) {
         if (session.getSessionID().equals(currentSession)) {
             Log.d(TAG, "Stop session");
-//            if (session.getState().ordinal() > QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_REJECTED.ordinal()) {
             addOpponentsFragmentWithDelay();
 
-//            } else {
-//                Log.d(TAG, "Can't hangup session with status -->" + session.getState().name());
-//            }
             // Remove current session
             Log.d(TAG, "Remove current session");
             currentSession = null;
@@ -296,30 +274,8 @@ public class CallActivity extends BaseLogginedUserActivity implements QBRTCClien
     @Override
     public void onReceiveHangUpFromUser(QBRTCSession session, Integer userID) {
 
-        // TODO update view of this user
-
         setStateTitle(userID, R.string.hungUp, View.INVISIBLE);
-
-////        Toast.makeText(this, "User with ID:" + userID + "disconnected", Toast.LENGTH_SHORT).show();
-//        if (session.getState().ordinal() < QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_REJECTED.ordinal()){
-//            addOpponentsFragmentWithDelay();
-//        } else {
-//            Log.d(TAG, "Can't hangup session with status -->" + session.getState().name());
-//        }
-//
-//        for (String key : QBRTCClient.getInstance().getSessions().keySet()) {
-//            Log.d(TAG, QBRTCClient.getInstance().getSessions().get(key).toString());
-//        }
-
     }
-
-//    private void removeUserWithID(Integer userID) {
-//        QBRTCSession session = getCurrentSession();
-//        if (session != null) {
-//            session.removeUser(userID, new HashMap<String, String>());
-//        }
-//    }
-
 
     public void addOpponentsFragmentWithDelay() {
         HandlerThread handlerThread = new HandlerThread(ADD_OPPONENTS_FRAGMENT_HANDLER);
