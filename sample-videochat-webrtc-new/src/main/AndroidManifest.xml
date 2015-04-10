@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.quickblox.sample.videochatwebrtcnew"
-    android:versionCode="4"
-    android:versionName="0.9.1">
+    package="com.quickblox.sample.videochatwebrtcnew">
 
     >
 

@@ -15,6 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.quickblox.chat.QBChatService;
+import com.quickblox.chat.QBSignaling;
+import com.quickblox.chat.QBWebRTCSignaling;
+import com.quickblox.chat.listeners.QBVideoChatSignalingListener;
+import com.quickblox.chat.listeners.QBVideoChatSignalingManagerListener;
 import com.quickblox.sample.videochatwebrtcnew.ApplicationSingleton;
 import com.quickblox.sample.videochatwebrtcnew.R;
 import com.quickblox.sample.videochatwebrtcnew.adapters.OpponentsAdapter;
@@ -34,6 +38,7 @@ import com.quickblox.videochat.webrtc.view.QBGLVideoView;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
 
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.packet.Message;
 import org.webrtc.PeerConnection;
 import org.webrtc.VideoRenderer;
 import org.webrtc.VideoRendererGui;
@@ -101,10 +106,17 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
     protected void onStart() {
         super.onStart();
         // From hear we start listening income call
-        QBRTCClient.init(this);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                QBRTCClient.init(CallActivity.this);
+            }
+        });
 
         // Add signalling manager
-        QBRTCClient.getInstance().setSignalingManager(QBChatService.getInstance().getVideoChatWebRTCSignalingManager());
+//        QBRTCClient.getInstance().setSignalingManager(QBChatService.getInstance().getVideoChatWebRTCSignalingManager());
+        initCallListaning();
+
 
         // Set custom ice servers up. Use it in case you want set your own servers instead of defaults
         List<PeerConnection.IceServer> iceServerList = new LinkedList<>();
@@ -119,6 +131,18 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
             QBRTCClient.getInstance().addSessionCallbacksListener(this);
             QBRTCClient.getInstance().addVideoTrackCallbacksListener(this);
         }
+    }
+
+
+    private void initCallListaning() {
+        QBChatService.getInstance().getVideoChatWebRTCSignalingManager().addSignalingManagerListener(
+                new QBVideoChatSignalingManagerListener() {
+                    @Override
+                    public void signalingCreated(QBSignaling signaling, boolean createdLocally) {
+                        if (!createdLocally)
+                            QBRTCClient.getInstance().addSignaling((QBWebRTCSignaling) signaling);
+                    }
+                });
     }
 
     public QBRTCSession getCurrentSession() {
@@ -283,18 +307,14 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
         new Handler(handlerThread.getLooper()).postAtTime(new Runnable() {
             @Override
             public void run() {
-                if (!CallActivity.this.isDestroyed()) {
                     getFragmentManager().beginTransaction().replace(R.id.fragment_container, new OpponentsFragment(), OPPONENTS_CALL_FRAGMENT).commit();
                     currentSession = null;
-                }
             }
         }, SystemClock.uptimeMillis() + TimeUnit.SECONDS.toMillis(TIME_BEGORE_CLOSE_CONVERSATION_FRAGMENT));
     }
 
     public void addOpponentsFragment() {
-        if (!isDestroyed()) {
             getFragmentManager().beginTransaction().replace(R.id.fragment_container, new OpponentsFragment(), OPPONENTS_CALL_FRAGMENT).commit();
-        }
     }
 
 
