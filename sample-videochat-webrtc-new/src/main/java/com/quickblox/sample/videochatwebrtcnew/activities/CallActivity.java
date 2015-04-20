@@ -50,6 +50,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 /**
  * Created by tereha on 16.02.15.
  */
@@ -109,7 +112,7 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                QBRTCClient.init(CallActivity.this);
+                QBRTCClient.init(getApplicationContext());
             }
         });
 
@@ -117,13 +120,13 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 //        QBRTCClient.getInstance().setSignalingManager(QBChatService.getInstance().getVideoChatWebRTCSignalingManager());
         initCallListaning();
 
-
-        // Set custom ice servers up. Use it in case you want set your own servers instead of defaults
-        List<PeerConnection.IceServer> iceServerList = new LinkedList<>();
-        iceServerList.add(new PeerConnection.IceServer("turn:numb.viagenie.ca", "petrbubnov@grr.la", "petrbubnov@grr.la"));
-        iceServerList.add(new PeerConnection.IceServer("turn:numb.viagenie.ca:3478?transport=udp", "petrbubnov@grr.la", "petrbubnov@grr.la"));
-        iceServerList.add(new PeerConnection.IceServer("turn:numb.viagenie.ca:3478?transport=tcp", "petrbubnov@grr.la", "petrbubnov@grr.la"));
-        QBRTCConfig.setIceServerList(iceServerList);
+//
+//        // Set custom ice servers up. Use it in case you want set your own servers instead of defaults
+//        List<PeerConnection.IceServer> iceServerList = new LinkedList<>();
+//        iceServerList.add(new PeerConnection.IceServer("turn:numb.viagenie.ca", "petrbubnov@grr.la", "petrbubnov@grr.la"));
+//        iceServerList.add(new PeerConnection.IceServer("turn:numb.viagenie.ca:3478?transport=udp", "petrbubnov@grr.la", "petrbubnov@grr.la"));
+//        iceServerList.add(new PeerConnection.IceServer("turn:numb.viagenie.ca:3478?transport=tcp", "petrbubnov@grr.la", "petrbubnov@grr.la"));
+//        QBRTCConfig.setIceServerList(iceServerList);
 
         // Add activity as callback to RTCClient
         if (QBRTCClient.isInitiated()) {
@@ -191,13 +194,13 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 
     @Override
     public void onUserNotAnswer(QBRTCSession session, Integer userID) {
-        setStateTitle(userID, R.string.noAnswer, View.VISIBLE);
+//        setStateTitle(userID, R.string.noAnswer, View.VISIBLE);
 //        addOpponentsFragmentWithDelay();
     }
 
     @Override
     public void onStartConnectToUser(QBRTCSession session, Integer userID) {
-        setStateTitle(userID, R.string.checking, View.VISIBLE);
+//        setStateTitle(userID, R.string.checking, View.VISIBLE);
 
         ConversationFragment fragment = (ConversationFragment) getFragmentManager().findFragmentByTag(CONVERSATION_CALL_FRAGMENT);
         if (fragment != null) {
@@ -207,7 +210,7 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 
     @Override
     public void onCallRejectByUser(QBRTCSession session, Integer userID, Map<String, String> userInfo) {
-        setStateTitle(userID, R.string.rejected, View.INVISIBLE);
+//        setStateTitle(userID, R.string.rejected, View.INVISIBLE);
     }
 
     @Override
@@ -225,6 +228,7 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 //        videoCallBacks.setSize(200, 300);
 //        VideoRenderer remouteRenderer = new VideoRenderer(videoCallBacks);
 //        videoTrack.addRenderer(remouteRenderer);
+
         videoTrack.addRenderer(new VideoRenderer(REMOTE_RENDERER));
         videoTrackList.put(userID, videoTrack);
         Log.d("Track", "onRemoteVideoTrackReceive() is raned");
@@ -232,26 +236,26 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 
     @Override
     public void onConnectionClosedForUser(QBRTCSession session, Integer userID) {
-        setStateTitle(userID, R.string.closed, View.INVISIBLE);
+//        setStateTitle(userID, R.string.closed, View.INVISIBLE);
     }
 
     @Override
     public void onConnectedToUser(QBRTCSession session, Integer userID) {
         startTimer();
 
-        setStateTitle(userID, R.string.connected, View.INVISIBLE);
+//        setStateTitle(userID, R.string.connected, View.INVISIBLE);
 
         Log.d("Track", "onConnectedToUser() is started");
     }
 
     @Override
     public void onDisconnectedTimeoutFromUser(QBRTCSession session, Integer userID) {
-        setStateTitle(userID, R.string.time_out, View.INVISIBLE);
+//        setStateTitle(userID, R.string.time_out, View.INVISIBLE);
     }
 
     @Override
     public void onConnectionFailedWithUser(QBRTCSession session, Integer userID) {
-        setStateTitle(userID, R.string.failed, View.INVISIBLE);
+//        setStateTitle(userID, R.string.failed, View.INVISIBLE);
     }
 
     @Override
@@ -279,7 +283,7 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 
     @Override
     public void onDisconnectedFromUser(QBRTCSession session, Integer userID) {
-        setStateTitle(userID, R.string.disconnected, View.INVISIBLE);
+//        setStateTitle(userID, R.string.disconnected, View.INVISIBLE);
     }
 
     private void setStateTitle(Integer userID, int stringID, int progressBarVisibility) {
@@ -297,8 +301,7 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
 
     @Override
     public void onReceiveHangUpFromUser(QBRTCSession session, Integer userID) {
-
-        setStateTitle(userID, R.string.hungUp, View.INVISIBLE);
+//        setStateTitle(userID, R.string.hungUp, View.INVISIBLE);
     }
 
     public void addOpponentsFragmentWithDelay() {
@@ -347,21 +350,24 @@ public class CallActivity extends BaseLogginedUserActivity implements /*QBRTCCli
         // init session for new call
         try {
             QBRTCSession newSessionWithOpponents = QBRTCClient.getInstance().createNewSessionWithOpponents(opponents, qbConferenceType);
-            setCurrentSession(newSessionWithOpponents);
 
-            ConversationFragment fragment = new ConversationFragment();
-            Bundle bundle = new Bundle();
-            bundle.putIntegerArrayList(ApplicationSingleton.OPPONENTS,
-                    new ArrayList<Integer>(opponents));
-            bundle.putInt(ApplicationSingleton.CONFERENCE_TYPE, qbConferenceType.getValue());
-            bundle.putInt(START_CONVERSATION_REASON, StartConversetionReason.OUTCOME_CALL_MADE.ordinal());
-            bundle.putString(CALLER_NAME, DataHolder.getUserNameByID(opponents.get(0)));
+            if (newSessionWithOpponents != null) {
+                setCurrentSession(newSessionWithOpponents);
 
-            for (String key : userInfo.keySet()) {
-                bundle.putString("UserInfo:" + key, userInfo.get(key));
+                ConversationFragment fragment = new ConversationFragment();
+                Bundle bundle = new Bundle();
+                bundle.putIntegerArrayList(ApplicationSingleton.OPPONENTS,
+                        new ArrayList<Integer>(opponents));
+                bundle.putInt(ApplicationSingleton.CONFERENCE_TYPE, qbConferenceType.getValue());
+                bundle.putInt(START_CONVERSATION_REASON, StartConversetionReason.OUTCOME_CALL_MADE.ordinal());
+                bundle.putString(CALLER_NAME, DataHolder.getUserNameByID(opponents.get(0)));
+
+                for (String key : userInfo.keySet()) {
+                    bundle.putString("UserInfo:" + key, userInfo.get(key));
+                }
+                fragment.setArguments(bundle);
+                getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, CONVERSATION_CALL_FRAGMENT).commit();
             }
-            fragment.setArguments(bundle);
-            getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, CONVERSATION_CALL_FRAGMENT).commit();
         } catch (IllegalStateException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }

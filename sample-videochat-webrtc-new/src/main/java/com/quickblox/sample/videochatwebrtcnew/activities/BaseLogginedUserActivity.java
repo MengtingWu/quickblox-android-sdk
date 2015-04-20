@@ -85,8 +85,8 @@ public class BaseLogginedUserActivity extends Activity {
     }
 
     public void startTimer() {
-        timerABWithTimer.setBase(SystemClock.elapsedRealtime());
-        timerABWithTimer.start();
+//        timerABWithTimer.setBase(SystemClock.elapsedRealtime());
+//        timerABWithTimer.start();
     }
 }
 
