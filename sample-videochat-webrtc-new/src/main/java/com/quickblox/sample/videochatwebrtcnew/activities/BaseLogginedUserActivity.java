@@ -1,7 +1,6 @@
 package com.quickblox.sample.videochatwebrtcnew.activities;
 
 import android.app.Activity;
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Chronometer;
